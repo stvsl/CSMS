@@ -76,13 +76,28 @@ func (obj *_UserMgr) WithPasswd(passwd string) Option {
 }
 
 // WithTel tel获取 联系电话
-func (obj *_UserMgr) WithTel(tel int) Option {
+func (obj *_UserMgr) WithTel(tel string) Option {
 	return optionFunc(func(o *options) { o.query["tel"] = tel })
 }
 
 // WithAvator avator获取 头像
 func (obj *_UserMgr) WithAvator(avator string) Option {
 	return optionFunc(func(o *options) { o.query["avator"] = avator })
+}
+
+// WithSex sex获取 性别
+func (obj *_UserMgr) WithSex(sex int) Option {
+	return optionFunc(func(o *options) { o.query["sex"] = sex })
+}
+
+// WithIDcard idcard获取 身份证号
+func (obj *_UserMgr) WithIDcard(idcard string) Option {
+	return optionFunc(func(o *options) { o.query["idcard"] = idcard })
+}
+
+// WithLocation location获取 居住地址
+func (obj *_UserMgr) WithLocation(location string) Option {
+	return optionFunc(func(o *options) { o.query["location"] = location })
 }
 
 // GetByOption 功能选项模式获取
@@ -158,14 +173,14 @@ func (obj *_UserMgr) GetBatchFromPasswd(passwds []string) (results []*User, err 
 }
 
 // GetFromTel 通过tel获取内容 联系电话
-func (obj *_UserMgr) GetFromTel(tel int) (results []*User, err error) {
-	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`tel` = ?", tel).Find(&results).Error
+func (obj *_UserMgr) GetFromTel(tel string) (result User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`tel` = ?", tel).First(&result).Error
 
 	return
 }
 
 // GetBatchFromTel 批量查找 联系电话
-func (obj *_UserMgr) GetBatchFromTel(tels []int) (results []*User, err error) {
+func (obj *_UserMgr) GetBatchFromTel(tels []string) (results []*User, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`tel` IN (?)", tels).Find(&results).Error
 
 	return
@@ -185,11 +200,60 @@ func (obj *_UserMgr) GetBatchFromAvator(avators []string) (results []*User, err 
 	return
 }
 
+// GetFromSex 通过sex获取内容 性别
+func (obj *_UserMgr) GetFromSex(sex int) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`sex` = ?", sex).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromSex 批量查找 性别
+func (obj *_UserMgr) GetBatchFromSex(sexs []int) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`sex` IN (?)", sexs).Find(&results).Error
+
+	return
+}
+
+// GetFromIDcard 通过idcard获取内容 身份证号
+func (obj *_UserMgr) GetFromIDcard(idcard string) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`idcard` = ?", idcard).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromIDcard 批量查找 身份证号
+func (obj *_UserMgr) GetBatchFromIDcard(idcards []string) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`idcard` IN (?)", idcards).Find(&results).Error
+
+	return
+}
+
+// GetFromLocation 通过location获取内容 居住地址
+func (obj *_UserMgr) GetFromLocation(location string) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`location` = ?", location).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromLocation 批量查找 居住地址
+func (obj *_UserMgr) GetBatchFromLocation(locations []string) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`location` IN (?)", locations).Find(&results).Error
+
+	return
+}
+
 //////////////////////////primary index case ////////////////////////////////////////////
 
 // FetchByPrimaryKey primary or index 获取唯一内容
 func (obj *_UserMgr) FetchByPrimaryKey(uid int) (result User, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`uid` = ?", uid).First(&result).Error
+
+	return
+}
+
+// FetchUniqueByUserUnique primary or index 获取唯一内容
+func (obj *_UserMgr) FetchUniqueByUserUnique(tel string) (result User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`tel` = ?", tel).First(&result).Error
 
 	return
 }

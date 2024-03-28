@@ -32,6 +32,8 @@ func Start() {
 	/**********************
 	 * 加载路由
 	 **********************/
+	router.POST("api/admin/login", handleAdminLogin)
+	router.POST("api/user/register", handleUserRegister)
 	// 通信加密相关
 	router.Run(":6521")
 }

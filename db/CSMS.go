@@ -57,16 +57,16 @@ func (m *Activityparticipation) TableName() string {
 CREATE TABLE `Admin` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
-  `tel` int(10) unsigned NOT NULL,
+  `tel` char(11) NOT NULL,
   `passwd` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员表'
+) ENGINE=InnoDB AUTO_INCREMENT=800000002 DEFAULT CHARSET=utf8mb4 COMMENT='管理员表'
 ******sql******/
 // Admin 管理员表
 type Admin struct {
 	ID     int    `gorm:"autoIncrement:true;primaryKey;column:id;type:int(11);not null"`
 	Name   string `gorm:"column:name;type:varchar(50);not null"`
-	Tel    uint32 `gorm:"column:tel;type:int(10) unsigned;not null"`
+	Tel    string `gorm:"column:tel;type:char(11);not null"`
 	Passwd string `gorm:"column:passwd;type:varchar(100);not null"`
 }
 
@@ -167,18 +167,25 @@ CREATE TABLE `User` (
   `uid` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `name` varchar(50) NOT NULL COMMENT '用户名',
   `passwd` varchar(100) NOT NULL COMMENT '用户密码',
-  `tel` int(11) NOT NULL COMMENT '联系电话',
+  `tel` char(11) NOT NULL COMMENT '联系电话',
   `avator` varchar(100) NOT NULL COMMENT '头像',
-  PRIMARY KEY (`uid`)
+  `sex` int(11) NOT NULL COMMENT '性别',
+  `idcard` char(18) DEFAULT NULL COMMENT '身份证号',
+  `location` varchar(100) DEFAULT NULL COMMENT '居住地址',
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `User_UNIQUE` (`tel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表'
 ******sql******/
 // User 用户表
 type User struct {
-	UID    int    `gorm:"autoIncrement:true;primaryKey;column:uid;type:int(11);not null;comment:'用户ID'"` // 用户ID
-	Name   string `gorm:"column:name;type:varchar(50);not null;comment:'用户名'"`                           // 用户名
-	Passwd string `gorm:"column:passwd;type:varchar(100);not null;comment:'用户密码'"`                       // 用户密码
-	Tel    int    `gorm:"column:tel;type:int(11);not null;comment:'联系电话'"`                               // 联系电话
-	Avator string `gorm:"column:avator;type:varchar(100);not null;comment:'头像'"`                         // 头像
+	UID      int    `gorm:"autoIncrement:true;primaryKey;column:uid;type:int(11);not null;comment:'用户ID'"` // 用户ID
+	Name     string `gorm:"column:name;type:varchar(50);not null;comment:'用户名'"`                           // 用户名
+	Passwd   string `gorm:"column:passwd;type:varchar(100);not null;comment:'用户密码'"`                       // 用户密码
+	Tel      string `gorm:"unique;column:tel;type:char(11);not null;comment:'联系电话'"`                       // 联系电话
+	Avator   string `gorm:"column:avator;type:varchar(100);not null;comment:'头像'"`                         // 头像
+	Sex      int    `gorm:"column:sex;type:int(11);not null;comment:'性别'"`                                 // 性别
+	IDcard   string `gorm:"column:idcard;type:char(18);default:null;comment:'身份证号'"`                       // 身份证号
+	Location string `gorm:"column:location;type:varchar(100);default:null;comment:'居住地址'"`                 // 居住地址
 }
 
 // TableName get sql table name.获取数据库表名

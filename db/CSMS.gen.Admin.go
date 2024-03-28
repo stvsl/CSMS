@@ -71,7 +71,7 @@ func (obj *_AdminMgr) WithName(name string) Option {
 }
 
 // WithTel tel获取
-func (obj *_AdminMgr) WithTel(tel uint32) Option {
+func (obj *_AdminMgr) WithTel(tel string) Option {
 	return optionFunc(func(o *options) { o.query["tel"] = tel })
 }
 
@@ -139,14 +139,14 @@ func (obj *_AdminMgr) GetBatchFromName(names []string) (results []*Admin, err er
 }
 
 // GetFromTel 通过tel获取内容
-func (obj *_AdminMgr) GetFromTel(tel uint32) (results []*Admin, err error) {
-	err = obj.DB.WithContext(obj.ctx).Model(Admin{}).Where("`tel` = ?", tel).Find(&results).Error
+func (obj *_AdminMgr) GetFromTel(tel string) (results Admin, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Admin{}).Where("`tel` = ?", tel).First(&results).Error
 
 	return
 }
 
 // GetBatchFromTel 批量查找
-func (obj *_AdminMgr) GetBatchFromTel(tels []uint32) (results []*Admin, err error) {
+func (obj *_AdminMgr) GetBatchFromTel(tels []string) (results []*Admin, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Admin{}).Where("`tel` IN (?)", tels).Find(&results).Error
 
 	return
