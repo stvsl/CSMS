@@ -33,7 +33,17 @@ func Start() {
 	 * 加载路由
 	 **********************/
 	router.POST("api/admin/login", handleAdminLogin)
+	router.POST("api/user/login", handleUserLogin)
 	router.POST("api/user/register", handleUserRegister)
+
+	router.POST("api/service/image/upload", handleImageUpload)
+	router.POST("api/service/content/upload", handleCOSContentUpload)
+	router.POST("api/article/upload", handleArticleUpload)
+	router.GET("api/article/count", handleArticleCount)
+	router.GET("api/article/id/list", handleArticleIdList)
+	router.POST("api/article/details",handleArticleDetails)
+	router.POST("api/anounce/upload", handleAnounceUpload)
+
 	// 通信加密相关
 	router.Run(":6521")
 }

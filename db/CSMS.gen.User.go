@@ -100,6 +100,16 @@ func (obj *_UserMgr) WithLocation(location string) Option {
 	return optionFunc(func(o *options) { o.query["location"] = location })
 }
 
+// WithType type获取 账户类型
+func (obj *_UserMgr) WithType(_type int) Option {
+	return optionFunc(func(o *options) { o.query["type"] = _type })
+}
+
+// WithCompany company获取 账户所属
+func (obj *_UserMgr) WithCompany(company string) Option {
+	return optionFunc(func(o *options) { o.query["company"] = company })
+}
+
 // GetByOption 功能选项模式获取
 func (obj *_UserMgr) GetByOption(opts ...Option) (result User, err error) {
 	options := options{
@@ -238,6 +248,34 @@ func (obj *_UserMgr) GetFromLocation(location string) (results []*User, err erro
 // GetBatchFromLocation 批量查找 居住地址
 func (obj *_UserMgr) GetBatchFromLocation(locations []string) (results []*User, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`location` IN (?)", locations).Find(&results).Error
+
+	return
+}
+
+// GetFromType 通过type获取内容 账户类型
+func (obj *_UserMgr) GetFromType(_type int) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`type` = ?", _type).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromType 批量查找 账户类型
+func (obj *_UserMgr) GetBatchFromType(_types []int) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`type` IN (?)", _types).Find(&results).Error
+
+	return
+}
+
+// GetFromCompany 通过company获取内容 账户所属
+func (obj *_UserMgr) GetFromCompany(company string) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`company` = ?", company).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromCompany 批量查找 账户所属
+func (obj *_UserMgr) GetBatchFromCompany(companys []string) (results []*User, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`company` IN (?)", companys).Find(&results).Error
 
 	return
 }

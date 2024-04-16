@@ -101,6 +101,16 @@ func (obj *_ActiveMgr) WithViews(views uint32) Option {
 	return optionFunc(func(o *options) { o.query["views"] = views })
 }
 
+// WithMaxcount maxcount获取 参与人数上限
+func (obj *_ActiveMgr) WithMaxcount(maxcount int) Option {
+	return optionFunc(func(o *options) { o.query["maxcount"] = maxcount })
+}
+
+// WithPosition position获取 活动位置
+func (obj *_ActiveMgr) WithPosition(position string) Option {
+	return optionFunc(func(o *options) { o.query["position"] = position })
+}
+
 // GetByOption 功能选项模式获取
 func (obj *_ActiveMgr) GetByOption(opts ...Option) (result Active, err error) {
 	options := options{
@@ -239,6 +249,34 @@ func (obj *_ActiveMgr) GetFromViews(views uint32) (results []*Active, err error)
 // GetBatchFromViews 批量查找 浏览量
 func (obj *_ActiveMgr) GetBatchFromViews(viewss []uint32) (results []*Active, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Active{}).Where("`views` IN (?)", viewss).Find(&results).Error
+
+	return
+}
+
+// GetFromMaxcount 通过maxcount获取内容 参与人数上限
+func (obj *_ActiveMgr) GetFromMaxcount(maxcount int) (results []*Active, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Active{}).Where("`maxcount` = ?", maxcount).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromMaxcount 批量查找 参与人数上限
+func (obj *_ActiveMgr) GetBatchFromMaxcount(maxcounts []int) (results []*Active, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Active{}).Where("`maxcount` IN (?)", maxcounts).Find(&results).Error
+
+	return
+}
+
+// GetFromPosition 通过position获取内容 活动位置
+func (obj *_ActiveMgr) GetFromPosition(position string) (results []*Active, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Active{}).Where("`position` = ?", position).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromPosition 批量查找 活动位置
+func (obj *_ActiveMgr) GetBatchFromPosition(positions []string) (results []*Active, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Active{}).Where("`position` IN (?)", positions).Find(&results).Error
 
 	return
 }

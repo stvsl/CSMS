@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -78,6 +79,11 @@ func (obj *_AdminMgr) WithTel(tel string) Option {
 // WithPasswd passwd获取
 func (obj *_AdminMgr) WithPasswd(passwd string) Option {
 	return optionFunc(func(o *options) { o.query["passwd"] = passwd })
+}
+
+// WithLastlogin lastlogin获取 最后登录时间
+func (obj *_AdminMgr) WithLastlogin(lastlogin time.Time) Option {
+	return optionFunc(func(o *options) { o.query["lastlogin"] = lastlogin })
 }
 
 // GetByOption 功能选项模式获取
@@ -162,6 +168,20 @@ func (obj *_AdminMgr) GetFromPasswd(passwd string) (results []*Admin, err error)
 // GetBatchFromPasswd 批量查找
 func (obj *_AdminMgr) GetBatchFromPasswd(passwds []string) (results []*Admin, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Admin{}).Where("`passwd` IN (?)", passwds).Find(&results).Error
+
+	return
+}
+
+// GetFromLastlogin 通过lastlogin获取内容 最后登录时间
+func (obj *_AdminMgr) GetFromLastlogin(lastlogin time.Time) (results []*Admin, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Admin{}).Where("`lastlogin` = ?", lastlogin).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromLastlogin 批量查找 最后登录时间
+func (obj *_AdminMgr) GetBatchFromLastlogin(lastlogins []time.Time) (results []*Admin, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Admin{}).Where("`lastlogin` IN (?)", lastlogins).Find(&results).Error
 
 	return
 }

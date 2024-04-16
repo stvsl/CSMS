@@ -2,9 +2,10 @@ package cos
 
 import (
 	"context"
+	"fmt"
+	"mime/multipart"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"stvsljl.com/CSMS/utils"
@@ -35,23 +36,26 @@ func GetCosClient() *cos.Client {
 }
 
 // 上传文件
-func UploadFile(base64img string) (string, error) {
-	ior, filename, err := utils.Base64toFileStream(base64img)
+func UploadFile(file *multipart.FileHeader) (string, error) {
+	// 打开文件
+	src, err := file.Open()
 	if err != nil {
-		return "文件转换失败", err
+		return "", err
 	}
-	// 检查文件名是否带有后缀，没有则添加.png
-	if !utils.CheckFileSuffixPNG(filename) {
-		filename += ".png"
-	}
-	// 获取年月日，自动创建文件夹，如果文件夹已存在则不会创建
-	path := time.Now().Format("2006/01/02/")
+	defer src.Close()
+	name, _ := utils.GetRandomString(15)
+	md5, _ := utils.FileMd5(file)
+	// 创建上传路径XXX.文件后缀
+	key := "uploads/" + name + md5 + file.Filename[len(file.Filename)-4:]
 	// 上传文件
-	_, err = CosClient.Object.Put(context.Background(), path+filename, ior, nil)
+	_, err = GetCosClient().Object.Put(context.Background(), key, src, nil)
 	if err != nil {
-		return "上传失败", err
+		return "", err
 	}
-	return utils.GetCosConfig().Domain + "/" + path + filename, nil
+	// 返回文件在 COS 中的 URL
+	url := fmt.Sprintf("http://cdn.stvsljl.com/%s", key)
+	fmt.Println(url)
+	return url, nil
 }
 
 // 删除文件

@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -65,6 +66,11 @@ func (obj *_FeedMgr) WithUID(uid uint32) Option {
 	return optionFunc(func(o *options) { o.query["uid"] = uid })
 }
 
+// WithType type获取 类型（0反馈1报修）
+func (obj *_FeedMgr) WithType(_type uint32) Option {
+	return optionFunc(func(o *options) { o.query["type"] = _type })
+}
+
 // WithName name获取 反馈名称
 func (obj *_FeedMgr) WithName(name string) Option {
 	return optionFunc(func(o *options) { o.query["name"] = name })
@@ -80,6 +86,11 @@ func (obj *_FeedMgr) WithDetail(detail string) Option {
 	return optionFunc(func(o *options) { o.query["detail"] = detail })
 }
 
+// WithProcess process获取 反馈进度
+func (obj *_FeedMgr) WithProcess(process uint32) Option {
+	return optionFunc(func(o *options) { o.query["process"] = process })
+}
+
 // WithStatus status获取 反馈状态
 func (obj *_FeedMgr) WithStatus(status int) Option {
 	return optionFunc(func(o *options) { o.query["status"] = status })
@@ -93,6 +104,16 @@ func (obj *_FeedMgr) WithOid(oid uint32) Option {
 // WithProcessor processor获取 处理人
 func (obj *_FeedMgr) WithProcessor(processor uint32) Option {
 	return optionFunc(func(o *options) { o.query["processor"] = processor })
+}
+
+// WithUpdatetime updateTime获取 更新时间
+func (obj *_FeedMgr) WithUpdatetime(updatetime time.Time) Option {
+	return optionFunc(func(o *options) { o.query["updateTime"] = updatetime })
+}
+
+// WithRecord record获取 数据记录
+func (obj *_FeedMgr) WithRecord(record string) Option {
+	return optionFunc(func(o *options) { o.query["record"] = record })
 }
 
 // GetByOption 功能选项模式获取
@@ -139,6 +160,20 @@ func (obj *_FeedMgr) GetBatchFromUID(uids []uint32) (results []*Feed, err error)
 	return
 }
 
+// GetFromType 通过type获取内容 类型（0反馈1报修）
+func (obj *_FeedMgr) GetFromType(_type uint32) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`type` = ?", _type).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromType 批量查找 类型（0反馈1报修）
+func (obj *_FeedMgr) GetBatchFromType(_types []uint32) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`type` IN (?)", _types).Find(&results).Error
+
+	return
+}
+
 // GetFromName 通过name获取内容 反馈名称
 func (obj *_FeedMgr) GetFromName(name string) (results []*Feed, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`name` = ?", name).Find(&results).Error
@@ -181,6 +216,20 @@ func (obj *_FeedMgr) GetBatchFromDetail(details []string) (results []*Feed, err 
 	return
 }
 
+// GetFromProcess 通过process获取内容 反馈进度
+func (obj *_FeedMgr) GetFromProcess(process uint32) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`process` = ?", process).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromProcess 批量查找 反馈进度
+func (obj *_FeedMgr) GetBatchFromProcess(processs []uint32) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`process` IN (?)", processs).Find(&results).Error
+
+	return
+}
+
 // GetFromStatus 通过status获取内容 反馈状态
 func (obj *_FeedMgr) GetFromStatus(status int) (results []*Feed, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`status` = ?", status).Find(&results).Error
@@ -219,6 +268,34 @@ func (obj *_FeedMgr) GetFromProcessor(processor uint32) (results []*Feed, err er
 // GetBatchFromProcessor 批量查找 处理人
 func (obj *_FeedMgr) GetBatchFromProcessor(processors []uint32) (results []*Feed, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`processor` IN (?)", processors).Find(&results).Error
+
+	return
+}
+
+// GetFromUpdatetime 通过updateTime获取内容 更新时间
+func (obj *_FeedMgr) GetFromUpdatetime(updatetime time.Time) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`updateTime` = ?", updatetime).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromUpdatetime 批量查找 更新时间
+func (obj *_FeedMgr) GetBatchFromUpdatetime(updatetimes []time.Time) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`updateTime` IN (?)", updatetimes).Find(&results).Error
+
+	return
+}
+
+// GetFromRecord 通过record获取内容 数据记录
+func (obj *_FeedMgr) GetFromRecord(record string) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`record` = ?", record).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromRecord 批量查找 数据记录
+func (obj *_FeedMgr) GetBatchFromRecord(records []string) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`record` IN (?)", records).Find(&results).Error
 
 	return
 }
