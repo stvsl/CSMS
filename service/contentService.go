@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"stvsljl.com/CSMS/db"
 )
 
@@ -82,6 +83,29 @@ func handleArticleDetails(c *gin.Context) {
 		"data": article,
 	})
 
+}
+
+func handleArticleDelete(c *gin.Context) {
+	sid, derr := c.GetQuery("id")
+	id, err := strconv.Atoi(sid)
+	if !derr || err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "参数错误" + sid,
+		})
+		return
+	}
+	if err := db.GetConn().Model(&db.Article{}).Where("aid = ?", id).Delete(&db.Article{}).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "参数错误或服务器内部错误" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "成功",
+	})
 }
 
 func handleArticleUpload(c *gin.Context) {
@@ -176,5 +200,213 @@ func handleAnounceUpload(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    http.StatusOK,
 		"message": "创建公告成功",
+	})
+}
+
+func handleAncouceCount(c *gin.Context) {
+	var count int64
+	if err := db.GetConn().Model(&db.Anounce{}).Count(&count).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "服务器内部错误" + err.Error(),
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "请求成功",
+		"count":   count,
+	})
+}
+
+func handleAnounceIdList(c *gin.Context) {
+	spage := c.Query("page")
+	page, err := strconv.Atoi(spage)
+	if page == 0 || err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "请求参数错误" + err.Error(),
+		})
+		return
+	}
+	type IDS struct {
+		Aid int `gorm:"autoIncrement:true;primaryKey;column:aid;type:int(12);not null;comment:'文章编号'"` // 文章编号
+	}
+	var ids []IDS
+	if err := db.GetConn().Model(&db.Anounce{}).Select("aid").Limit(10).Offset((page - 1) * 10).Find(&ids).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "服务器内部错误" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "请求成功",
+		"data":    ids,
+	})
+}
+
+func handleAnounceDetails(c *gin.Context) {
+	sid, derr := c.GetQuery("id")
+	if !derr {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "请求参数错误",
+		})
+		return
+	}
+	anounce := db.Anounce{}
+	if err := db.GetConn().Model(&db.Anounce{}).Where("aid = ?", sid).First(&anounce).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "参数错误" + err.Error(),
+		})
+		return
+	}
+	db.GetConn().Model(&anounce).Where("aid = ?", sid).UpdateColumn("pageviews", gorm.Expr("pageviews + ?", 1))
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "请求成功",
+		"data":    anounce,
+	})
+}
+
+func handleArticleUpdate(c *gin.Context) {
+	type Req struct {
+		Aid  string `json:"aid"`
+		Data struct {
+			Title        string `json:"title"`
+			Introduction string `json:"introduction"`
+			Coverimage   []struct {
+				Name string `json:"name"`
+				URL  string `json:"url"`
+			} `json:"coverimage"`
+			Contentimage []struct {
+				Name string `json:"name"`
+				URL  string `json:"url"`
+			} `json:"contentimage"`
+		} `json:"data"`
+		Content string `json:"content"`
+		Anchor  string `json:"anchor"`
+	}
+	var req Req
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	mgr := db.ArticleMgr(db.GetConn())
+	if err := mgr.Where("aid = ?", req.Aid).Updates(&db.Article{
+		Title:        req.Data.Title,
+		Introduction: req.Data.Introduction,
+		Text:         req.Content,
+		Coverimg:     req.Data.Coverimage[0].URL,
+		Contentimg:   req.Data.Contentimage[0].URL,
+		Updatetime:   time.Now(),
+		Author:       req.Anchor,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "更新文章失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "更新文章成功",
+	})
+}
+
+func handleArticleVisible(c *gin.Context) {
+	type Req struct {
+		Aid    string `json:"aid"`
+		Status int    `json:"status"`
+	}
+	var req Req
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.GetConn().Model(&db.Article{}).Where("aid = ?", req.Aid).UpdateColumn("status", req.Status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "更新文章状态失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "更新文章状态成功",
+	})
+}
+
+func handleAnounceDelete(c *gin.Context) {
+	sid := c.Query("id")
+	if err := db.GetConn().Model(&db.Anounce{}).Where("aid = ?", sid).Delete(&db.Anounce{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "删除公告失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "删除公告成功",
+	})
+}
+
+func handleAnounceUpdate(c *gin.Context) {
+	type Req struct {
+		Aid  string `json:"aid"`
+		Data struct {
+			Title        string `json:"title"`
+			Introduction string `json:"introduction"`
+		} `json:"data"`
+		Content string `json:"content"`
+		Anchor  string `json:"anchor"`
+	}
+	var req Req
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.GetConn().Model(&db.Anounce{}).Where("aid = ?", req.Aid).Updates(&db.Anounce{
+		Title:        req.Data.Title,
+		Introduction: req.Data.Introduction,
+		Text:         req.Content,
+		Updatetime:   time.Now(),
+		Author:       req.Anchor,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "更新公告失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "更新公告成功",
+	})
+}
+
+func handleAnounceVisible(c *gin.Context) {
+	type Req struct {
+		Aid    string `json:"aid"`
+		Status int    `json:"status"`
+	}
+	var req Req
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.GetConn().Model(&db.Anounce{}).Where("aid = ?", req.Aid).UpdateColumn("status", req.Status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "更新公告状态失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "更新公告状态成功",
 	})
 }

@@ -38,11 +38,22 @@ func Start() {
 
 	router.POST("api/service/image/upload", handleImageUpload)
 	router.POST("api/service/content/upload", handleCOSContentUpload)
+
 	router.POST("api/article/upload", handleArticleUpload)
 	router.GET("api/article/count", handleArticleCount)
 	router.GET("api/article/id/list", handleArticleIdList)
-	router.POST("api/article/details",handleArticleDetails)
+	router.POST("api/article/details", handleArticleDetails)
+	router.POST("api/article/delete", handleArticleDelete)
+	router.POST("api/article/update", handleArticleUpdate)
+	router.POST("api/article/visible", handleArticleVisible)
+
+	router.GET("api/anounce/count", handleAncouceCount)
 	router.POST("api/anounce/upload", handleAnounceUpload)
+	router.GET("api/anounce/id/list", handleAnounceIdList)
+	router.POST("api/anounce/details", handleAnounceDetails)
+	router.POST("api/anounce/delete", handleAnounceDelete)
+	router.POST("api/anounce/update", handleAnounceUpdate)
+	router.POST("api/anounce/visible", handleAnounceVisible)
 
 	// 通信加密相关
 	router.Run(":6521")
