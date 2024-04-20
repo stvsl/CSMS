@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"stvsljl.com/CSMS/utils"
 )
 
@@ -14,7 +15,9 @@ var _db *gorm.DB // 全局连接池
 func Connect() {
 	if _db == nil {
 		dsn := utils.GetSqlConnConfigStr()
-		_db, _ = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		_db, _ = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		})
 		SetPool()
 	} else {
 		ReConnect()

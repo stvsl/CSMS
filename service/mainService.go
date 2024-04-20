@@ -46,6 +46,9 @@ func Start() {
 	router.POST("api/article/delete", handleArticleDelete)
 	router.POST("api/article/update", handleArticleUpdate)
 	router.POST("api/article/visible", handleArticleVisible)
+	router.GET("api/article/id/recent", handleArticleRecent)
+	router.GET("api/article/id/all", handleArticleAll)
+	router.GET("api/article/id/count", handleArticleIdCount)
 
 	router.GET("api/anounce/count", handleAncouceCount)
 	router.POST("api/anounce/upload", handleAnounceUpload)
@@ -54,7 +57,17 @@ func Start() {
 	router.POST("api/anounce/delete", handleAnounceDelete)
 	router.POST("api/anounce/update", handleAnounceUpdate)
 	router.POST("api/anounce/visible", handleAnounceVisible)
+	router.GET("api/anounce/id/recent", handleAnounceRecent)
+	router.GET("api/anounce/id/all", handleAncouceAll)
+	router.GET("api/anounce/id/count", handleAncouceIdCount)
 
-	// 通信加密相关
+	router.POST("api/activity/upload", handleActivityUpload)
+	router.GET("api/activity/count", handleActivityCount)
+	router.GET("api/activity/id/list", handleActivityIdList)
+	router.POST("api/activity/details", handleActivityDetails)
+	router.POST("api/activity/status", handleActivityStatus)
+	router.POST("api/activity/delete", handleActivityDelete)
+	router.POST("api/activity/peoplestatus", handleActivityPeopleStatus)
+	router.POST("api/activity/update", handleActivityUpdate)
 	router.Run(":6521")
 }

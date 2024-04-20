@@ -20,6 +20,16 @@ func handleArticleCount(c *gin.Context) {
 	})
 }
 
+func handleArticleIdCount(c *gin.Context) {
+	var count int64
+	db.GetConn().Model(&db.Article{}).Where("status = ?", 1).Count(&count)
+	c.JSON(http.StatusOK, gin.H{
+		"code":  200,
+		"msg":   "success",
+		"count": count,
+	})
+}
+
 func handleArticleIdList(c *gin.Context) {
 	// 从请求参数中获取
 	spage, berr := c.GetQuery("page")
@@ -206,6 +216,21 @@ func handleAnounceUpload(c *gin.Context) {
 func handleAncouceCount(c *gin.Context) {
 	var count int64
 	if err := db.GetConn().Model(&db.Anounce{}).Count(&count).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "服务器内部错误" + err.Error(),
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "请求成功",
+		"count":   count,
+	})
+}
+
+func handleAncouceIdCount(c *gin.Context) {
+	var count int64
+	if err := db.GetConn().Model(&db.Anounce{}).Where("status = ?", 1).Count(&count).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    http.StatusInternalServerError,
 			"message": "服务器内部错误" + err.Error(),
@@ -408,5 +433,87 @@ func handleAnounceVisible(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    http.StatusOK,
 		"message": "更新公告状态成功",
+	})
+}
+
+func handleArticleRecent(c *gin.Context) {
+	var resid []db.Article
+	if err := db.GetConn().Table("Article").Order("writetime desc").Limit(5).Find(&resid).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "获取最新文章失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "获取最新文章成功",
+		"data":    resid,
+	})
+}
+
+func handleArticleAll(c *gin.Context) {
+	spage := c.Query("page")
+	page, err := strconv.Atoi(spage)
+	if err != nil || page < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "页码错误",
+		})
+		return
+	}
+	var resid []int
+	if err := db.GetConn().Model(&db.Article{}).Where("status = ?", 1).Offset((page-1)*10).Limit(10).Pluck("aid", &resid).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "获取文章失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "获取文章成功",
+		"data":    resid,
+	})
+}
+
+func handleAnounceRecent(c *gin.Context) {
+	var res []int
+	if err := db.GetConn().Table("Anounce").Select("aid").Order("writetime desc").Limit(5).Find(&res).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "获取公告失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "获取公告成功",
+		"data":    res,
+	})
+}
+
+func handleAncouceAll(c *gin.Context) {
+	spage := c.Query("page")
+	page, err := strconv.Atoi(spage)
+	if err != nil || page < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "页码错误",
+		})
+		return
+	}
+	var res []int
+	if err := db.GetConn().Table("Anounce").Select("aid").Offset((page - 1) * 10).Limit(10).Find(&res).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "获取公告失败" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "获取公告成功",
+		"data":    res,
 	})
 }
