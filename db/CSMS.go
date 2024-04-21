@@ -8,24 +8,24 @@ import (
 CREATE TABLE `Active` (
   `acid` int(11) NOT NULL AUTO_INCREMENT COMMENT '活动ID',
   `name` varchar(100) NOT NULL COMMENT '活动名称',
-  `startTime` time NOT NULL COMMENT '开始时间',
-  `openTime` time NOT NULL COMMENT '发布时间',
-  `endTime` time NOT NULL COMMENT '结束时间',
+  `startTime` datetime NOT NULL COMMENT '开始时间',
+  `openTime` datetime NOT NULL COMMENT '发布时间',
+  `endTime` datetime NOT NULL COMMENT '结束时间',
   `detail` varchar(200) NOT NULL COMMENT '活动详情',
   `text` text NOT NULL COMMENT '活动正文',
   `views` int(10) unsigned NOT NULL COMMENT '浏览量',
   `maxcount` int(11) NOT NULL DEFAULT 0 COMMENT '参与人数上限',
   `position` varchar(100) NOT NULL COMMENT '活动位置',
   PRIMARY KEY (`acid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='活动表'
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='活动表'
 ******sql******/
 // Active 活动表
 type Active struct {
 	Acid      int       `gorm:"autoIncrement:true;primaryKey;column:acid;type:int(11);not null;comment:'活动ID'"` // 活动ID
 	Name      string    `gorm:"column:name;type:varchar(100);not null;comment:'活动名称'"`                          // 活动名称
-	Starttime time.Time `gorm:"column:startTime;type:time;not null;comment:'开始时间'"`                             // 开始时间
-	Opentime  time.Time `gorm:"column:openTime;type:time;not null;comment:'发布时间'"`                              // 发布时间
-	Endtime   time.Time `gorm:"column:endTime;type:time;not null;comment:'结束时间'"`                               // 结束时间
+	Starttime time.Time `gorm:"column:startTime;type:datetime;not null;comment:'开始时间'"`                         // 开始时间
+	Opentime  time.Time `gorm:"column:openTime;type:datetime;not null;comment:'发布时间'"`                          // 发布时间
+	Endtime   time.Time `gorm:"column:endTime;type:datetime;not null;comment:'结束时间'"`                           // 结束时间
 	Detail    string    `gorm:"column:detail;type:varchar(200);not null;comment:'活动详情'"`                        // 活动详情
 	Text      string    `gorm:"column:text;type:text;not null;comment:'活动正文'"`                                  // 活动正文
 	Views     uint32    `gorm:"column:views;type:int(10) unsigned;not null;comment:'浏览量'"`                      // 浏览量
@@ -93,7 +93,7 @@ CREATE TABLE `Anounce` (
   `pageviews` bigint(20) unsigned NOT NULL DEFAULT 0 COMMENT '浏览量',
   `status` int(1) NOT NULL COMMENT '状态',
   PRIMARY KEY (`aid`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COMMENT='公告相关数据'
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COMMENT='公告相关数据'
 ******sql******/
 // Anounce 公告相关数据
 type Anounce struct {
@@ -116,8 +116,8 @@ func (m *Anounce) TableName() string {
 /******sql******
 CREATE TABLE `Article` (
   `aid` int(12) NOT NULL AUTO_INCREMENT COMMENT '文章编号',
-  `coverimg` varchar(150) NOT NULL COMMENT '封面图片',
-  `contentimg` varchar(150) NOT NULL COMMENT '内容大图',
+  `coverimg` varchar(150) DEFAULT NULL COMMENT '封面图片',
+  `contentimg` varchar(150) DEFAULT NULL COMMENT '内容大图',
   `title` varchar(50) NOT NULL COMMENT '标题',
   `introduction` varchar(200) NOT NULL COMMENT '简介',
   `text` longtext NOT NULL COMMENT '正文',
@@ -127,13 +127,13 @@ CREATE TABLE `Article` (
   `pageviews` bigint(20) unsigned NOT NULL DEFAULT 0 COMMENT '浏览量',
   `status` int(1) NOT NULL COMMENT '文章状态',
   PRIMARY KEY (`aid`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COMMENT='网站文章相关数据'
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COMMENT='网站文章相关数据'
 ******sql******/
 // Article 网站文章相关数据
 type Article struct {
 	Aid          int       `gorm:"autoIncrement:true;primaryKey;column:aid;type:int(12);not null;comment:'文章编号'"` // 文章编号
-	Coverimg     string    `gorm:"column:coverimg;type:varchar(150);not null;comment:'封面图片'"`                     // 封面图片
-	Contentimg   string    `gorm:"column:contentimg;type:varchar(150);not null;comment:'内容大图'"`                   // 内容大图
+	Coverimg     string    `gorm:"column:coverimg;type:varchar(150);default:null;comment:'封面图片'"`                 // 封面图片
+	Contentimg   string    `gorm:"column:contentimg;type:varchar(150);default:null;comment:'内容大图'"`               // 内容大图
 	Title        string    `gorm:"column:title;type:varchar(50);not null;comment:'标题'"`                           // 标题
 	Introduction string    `gorm:"column:introduction;type:varchar(200);not null;comment:'简介'"`                   // 简介
 	Text         string    `gorm:"column:text;type:longtext;not null;comment:'正文'"`                               // 正文
@@ -151,6 +151,7 @@ func (m *Article) TableName() string {
 
 /******sql******
 CREATE TABLE `Feed` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `uid` int(10) unsigned NOT NULL COMMENT '反馈用户',
   `type` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '类型（0反馈1报修）',
   `name` varchar(100) NOT NULL COMMENT '反馈名称',
@@ -161,22 +162,24 @@ CREATE TABLE `Feed` (
   `oid` int(10) unsigned NOT NULL COMMENT '委派人',
   `processor` int(10) unsigned DEFAULT NULL COMMENT '处理人',
   `updateTime` datetime DEFAULT NULL COMMENT '更新时间',
-  `record` varchar(100) DEFAULT NULL COMMENT '数据记录'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='反馈表'
+  `record` varchar(100) DEFAULT NULL COMMENT '数据记录',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='反馈表'
 ******sql******/
 // Feed 反馈表
 type Feed struct {
-	UID        uint32    `gorm:"column:uid;type:int(10) unsigned;not null;comment:'反馈用户'"`                  // 反馈用户
-	Type       uint32    `gorm:"column:type;type:int(10) unsigned;not null;default:0;comment:'类型（0反馈1报修）'"` // 类型（0反馈1报修）
-	Name       string    `gorm:"column:name;type:varchar(100);not null;comment:'反馈名称'"`                     // 反馈名称
-	Feedtime   string    `gorm:"column:feedtime;type:varchar(100);not null;comment:'反馈时间'"`                 // 反馈时间
-	Detail     string    `gorm:"column:detail;type:varchar(200);not null;comment:'反馈内容'"`                   // 反馈内容
-	Process    uint32    `gorm:"column:process;type:int(10) unsigned;default:null;comment:'反馈进度'"`          // 反馈进度
-	Status     int       `gorm:"column:status;type:int(11);not null;comment:'反馈状态'"`                        // 反馈状态
-	Oid        uint32    `gorm:"column:oid;type:int(10) unsigned;not null;comment:'委派人'"`                   // 委派人
-	Processor  uint32    `gorm:"column:processor;type:int(10) unsigned;default:null;comment:'处理人'"`         // 处理人
-	Updatetime time.Time `gorm:"column:updateTime;type:datetime;default:null;comment:'更新时间'"`               // 更新时间
-	Record     string    `gorm:"column:record;type:varchar(100);default:null;comment:'数据记录'"`               // 数据记录
+	ID         int       `gorm:"autoIncrement:true;primaryKey;column:id;type:int(11);not null;comment:'ID'"` // ID
+	UID        uint32    `gorm:"column:uid;type:int(10) unsigned;not null;comment:'反馈用户'"`                   // 反馈用户
+	Type       uint32    `gorm:"column:type;type:int(10) unsigned;not null;default:0;comment:'类型（0反馈1报修）'"`  // 类型（0反馈1报修）
+	Name       string    `gorm:"column:name;type:varchar(100);not null;comment:'反馈名称'"`                      // 反馈名称
+	Feedtime   time.Time `gorm:"column:feedtime;type:datetime;not null;comment:'反馈时间'"`                      // 反馈时间
+	Detail     string    `gorm:"column:detail;type:varchar(200);not null;comment:'反馈内容'"`                    // 反馈内容
+	Process    uint32    `gorm:"column:process;type:int(10) unsigned;default:null;comment:'反馈进度'"`           // 反馈进度
+	Status     int       `gorm:"column:status;type:int(11);not null;comment:'反馈状态'"`                         // 反馈状态
+	Oid        uint32    `gorm:"column:oid;type:int(10) unsigned;not null;comment:'委派人'"`                    // 委派人
+	Processor  string    `gorm:"column:processor;type:varchar(200) unsigned;default:null;comment:'处理人'"`     // 处理人
+	Updatetime time.Time `gorm:"column:updateTime;type:datetime;default:null;comment:'更新时间'"`                // 更新时间
+	Record     string    `gorm:"column:record;type:varchar(100);default:null;comment:'数据记录'"`                // 数据记录
 }
 
 // TableName get sql table name.获取数据库表名
@@ -222,7 +225,7 @@ CREATE TABLE `User` (
   `company` varchar(100) DEFAULT NULL COMMENT '账户所属',
   PRIMARY KEY (`uid`),
   UNIQUE KEY `User_UNIQUE` (`tel`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='用户表'
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COMMENT='用户表'
 ******sql******/
 // User 用户表
 type User struct {

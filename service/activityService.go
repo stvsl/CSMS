@@ -274,3 +274,21 @@ func handleActivityUpdate(c *gin.Context) {
 		})
 	}
 }
+
+func handleActivityRecentIdList(c *gin.Context) {
+	// 查找endTime大于当前时间的活动
+	var ids []int
+	if err := db.GetConn().Model(&db.Active{}).Where("endTime > ?", time.Now()).Pluck("acid", &ids).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "服务器错误",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "查询成功",
+		"data":    ids,
+	})
+
+}

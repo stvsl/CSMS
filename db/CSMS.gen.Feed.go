@@ -61,6 +61,11 @@ func (obj *_FeedMgr) Count(count *int64) (tx *gorm.DB) {
 
 //////////////////////////option case ////////////////////////////////////////////
 
+// WithID id获取 ID
+func (obj *_FeedMgr) WithID(id int) Option {
+	return optionFunc(func(o *options) { o.query["id"] = id })
+}
+
 // WithUID uid获取 反馈用户
 func (obj *_FeedMgr) WithUID(uid uint32) Option {
 	return optionFunc(func(o *options) { o.query["uid"] = uid })
@@ -145,6 +150,20 @@ func (obj *_FeedMgr) GetByOptions(opts ...Option) (results []*Feed, err error) {
 }
 
 //////////////////////////enume case ////////////////////////////////////////////
+
+// GetFromID 通过id获取内容 ID
+func (obj *_FeedMgr) GetFromID(id int) (result Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`id` = ?", id).First(&result).Error
+
+	return
+}
+
+// GetBatchFromID 批量查找 ID
+func (obj *_FeedMgr) GetBatchFromID(ids []int) (results []*Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`id` IN (?)", ids).Find(&results).Error
+
+	return
+}
 
 // GetFromUID 通过uid获取内容 反馈用户
 func (obj *_FeedMgr) GetFromUID(uid uint32) (results []*Feed, err error) {
@@ -301,3 +320,10 @@ func (obj *_FeedMgr) GetBatchFromRecord(records []string) (results []*Feed, err 
 }
 
 //////////////////////////primary index case ////////////////////////////////////////////
+
+// FetchByPrimaryKey primary or index 获取唯一内容
+func (obj *_FeedMgr) FetchByPrimaryKey(id int) (result Feed, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Feed{}).Where("`id` = ?", id).First(&result).Error
+
+	return
+}
