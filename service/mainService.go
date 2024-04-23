@@ -99,6 +99,13 @@ func Start() {
 	router.GET("api/fix/user/count", handleFixUserCount)
 	router.GET("api/fix/user/id/list", handleFixUserIdList)
 
+	router.GET("api/account/count", handleAccountCount)
+	router.GET("api/account/id/list", handleAccountIdList)
+	router.POST("api/account/detail", handleAccountDetail)
+	router.POST("api/account/update/passwd",handleAccountUpdatePasswd)
+	router.POST("api/account/update/info", handleAccountUpdateInfo)
+	router.POST("api/account/delete", handleAccountDelete)
+
 	// 打印总路由条数
 	utils.Log.Info("总路由条数：", len(router.Routes()))
 	router.Run(":6521")
