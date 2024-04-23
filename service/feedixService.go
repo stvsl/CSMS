@@ -588,7 +588,7 @@ func handleFixDo(c *gin.Context) {
 		return
 	}
 	type Req struct {
-		ID   string `json:"id"`
+		ID   int    `json:"id"`
 		Mode int64  `json:"mode"`
 		Name string `json:"name"`
 	}

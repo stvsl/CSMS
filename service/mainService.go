@@ -102,9 +102,18 @@ func Start() {
 	router.GET("api/account/count", handleAccountCount)
 	router.GET("api/account/id/list", handleAccountIdList)
 	router.POST("api/account/detail", handleAccountDetail)
-	router.POST("api/account/update/passwd",handleAccountUpdatePasswd)
+	router.POST("api/account/update/passwd", handleAccountUpdatePasswd)
 	router.POST("api/account/update/info", handleAccountUpdateInfo)
 	router.POST("api/account/delete", handleAccountDelete)
+	router.POST("api/account/getbykey", handleAccountIdsGetByKey)
+
+	router.GET("api/account/3rd/count", handleAccount3rdCount)
+	router.GET("api/account/3rd/id/list", handleAccount3rdIdList)
+	router.POST("api/account/3rd/detail", handleAccount3rdDetail)
+	router.POST("api/account/3rd/delete", handleAccount3rdDelete)
+	router.POST("api/account/3rd/register", handleAccount3rdRegister)
+	router.POST("api/account/3rd/cancelRight", handleAccount3rdCancleRight)
+	router.GET("api/account/3rd/id/fetchlist", handleAccountFetchList)
 
 	// 打印总路由条数
 	utils.Log.Info("总路由条数：", len(router.Routes()))
