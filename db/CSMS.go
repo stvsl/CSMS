@@ -202,7 +202,7 @@ type Otheruser struct {
 	Oid     int    `gorm:"autoIncrement:true;primaryKey;column:oid;type:int(11);not null;comment:'第三方人员ID'"` // 第三方人员ID
 	Name    string `gorm:"column:name;type:varchar(100);not null;comment:'姓名'"`                              // 姓名
 	Company string `gorm:"column:company;type:varchar(100);not null;comment:'所属公司'"`                         // 所属公司
-	Tel     int    `gorm:"column:tel;type:int(11);not null;comment:'联系电话'"`                                  // 联系电话
+	Tel     string `gorm:"column:tel;type:varchar(11);not null;comment:'联系电话'"`                              // 联系电话
 	Sex     int    `gorm:"column:sex;type:int(1);not null;comment:'性别'"`                                     // 性别
 }
 

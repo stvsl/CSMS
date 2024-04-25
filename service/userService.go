@@ -253,3 +253,37 @@ func handleAccountDelete(c *gin.Context) {
 		"msg":  "删除成功",
 	})
 }
+
+func handleAccountIdsGetByKey(c *gin.Context) {
+	key := c.Query("key")
+	value := c.Query("value")
+	if key == "" || value == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "参数错误",
+		})
+		return
+	}
+	if key == "名称" {
+		key = "name"
+	}
+	if key == "联系电话" {
+		key = "tel"
+	}
+	if key == "UID" {
+		key = "uid"
+	}
+	var ids []int
+	if err := db.GetConn().Model(&db.User{}).Where(key+" like ?", "%"+value+"%").Pluck("uid", &ids).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 500,
+			"msg":  "服务器错误" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "获取成功",
+		"data": ids,
+	})
+}

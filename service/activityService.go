@@ -292,3 +292,127 @@ func handleActivityRecentIdList(c *gin.Context) {
 	})
 
 }
+
+func handleActivityHasjion(c *gin.Context) {
+	sid := c.Query("id")
+	sacid := c.Query("acid")
+	if sid == "" || sacid == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "参数错误",
+		})
+		return
+	}
+	var count int64
+	db.GetConn().Model(&db.Activityparticipation{}).Where("uid = ? and acid = ?", sid, sacid).Count(&count)
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"data": count,
+	})
+}
+
+func handleActivityUserStatus(c *gin.Context) {
+	sid := c.Query("id")
+	sacid := c.Query("acid")
+	if sid == "" || sacid == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "参数错误",
+		})
+		return
+	}
+	var status int
+	if err := db.GetConn().Model(&db.Activityparticipation{}).Where("uid = ? and acid = ?", sid, sacid).Pluck("status", &status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "服务器错误",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "查询成功",
+		"data":    status,
+	})
+}
+
+func handleActivityJoin(c *gin.Context) {
+	sid := c.Query("id")
+	sacid := c.Query("acid")
+	id, _ := strconv.Atoi(sid)
+	ap := db.Activityparticipation{
+		UID:    uint32(id),
+		Acid:   sacid,
+		Status: 0,
+	}
+	if err := db.GetConn().Create(&ap).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code":    500,
+			"message": "服务器错误",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "报名成功",
+	})
+}
+
+func handleActivityExit(c *gin.Context) {
+	sid := c.Query("id")
+	sacid := c.Query("acid")
+	if err := db.GetConn().Where("acid = ?", sacid).Where("uid = ?", sid).Delete(&db.Activityparticipation{}).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code":    500,
+			"message": "服务器错误",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "退出成功",
+	})
+}
+
+func handleActivityUserCount(c *gin.Context) {
+	sid := c.Query("id")
+	var count int64
+	if err := db.GetConn().Where("uid = ?", sid).Find(&db.Activityparticipation{}).Count(&count).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code":    500,
+			"message": "服务器错误",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "查询成功",
+		"data":    count,
+	})
+}
+
+func handleActivityUserIdList(c *gin.Context) {
+	sid := c.Query("id")
+	spage := c.Query("page")
+	if spage == "" {
+		spage = "1"
+	}
+	page, _ := strconv.Atoi(spage)
+	if sid == "" {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code":    500,
+			"message": "参数错误",
+		})
+		return
+	}
+	var ids []string
+	if err := db.GetConn().Model(&db.Activityparticipation{}).Offset((page-1)*10).Where("uid = ?", sid).Pluck("acid", &ids).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code":    500,
+			"message": "数据库错误",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "获取成功",
+		"data":    ids,
+	})
+}

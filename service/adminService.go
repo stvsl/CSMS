@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -58,5 +59,43 @@ func handleAdminLogin(c *gin.Context) {
 		"code": 200,
 		"msg":  "登录成功",
 		"info": admin,
+	})
+}
+
+func handleAdminRegister(c *gin.Context) {
+	// TODO;
+}
+
+func handleAdminUpdate(c *gin.Context) {
+	id := c.Query("id")
+	tel := c.Query("tel")
+	name := c.Query("name")
+	if err := db.GetConn().Model(&db.Admin{}).Where("id = ?", id).UpdateColumns(map[string]interface{}{
+		"tel":  tel,
+		"name": name,
+	}).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code": 400,
+			"msg":  "修改失败",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "修改成功",
+	})
+}
+
+func handleAdminPasswd(c *gin.Context) {
+	id := c.Query("id")
+	passwd := c.Query("passwd")
+	if err := db.GetConn().Model(&db.Admin{}).Where("id = ?", id).UpdateColumn("passwd", passwd).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code": 400,
+			"msg":  "修改失败",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "修改成功",
 	})
 }
