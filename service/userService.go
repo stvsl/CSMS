@@ -308,3 +308,35 @@ func handleAccountOverview(c *gin.Context) {
 		"data": res,
 	})
 }
+
+func handleAccountAdd(c *gin.Context) {
+	type Req struct {
+		Name   string `json:"name"`
+		Tel    string `json:"tel"`
+		Idcard string `json:"idcard"`
+		Passwd string `json:"passwd"`
+	}
+	req := Req{}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "error": err.Error()})
+		return
+	}
+	if req.Name == "" || req.Tel == "" || req.Idcard == "" || req.Passwd == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "msg": "请求参数错误"})
+		return
+	}
+	user := db.User{
+		Name:   req.Name,
+		Tel:    req.Tel,
+		IDcard: req.Idcard,
+		Passwd: req.Passwd,
+	}
+	if err := db.GetConn().Create(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "服务器错误"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "添加成功",
+	})
+}

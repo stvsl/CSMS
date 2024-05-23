@@ -371,7 +371,7 @@ func handleFeedUserIdList(c *gin.Context) {
 		return
 	}
 	var feedids []string
-	if err := db.FeedMgr(db.GetConn()).Where("type = ? AND uid = ?", 0, sid).Select("id").Offset((page - 1) * 10).Limit(10).Find(&feedids).Error; err != nil {
+	if err := db.FeedMgr(db.GetConn()).Where("type = ? AND uid = ?", 0, sid).Select("id").Offset((page - 1) * 5).Limit(5).Find(&feedids).Error; err != nil {
 		c.JSON(400, gin.H{
 			"code": 400,
 			"msg":  "查询失败",
@@ -750,7 +750,7 @@ func handleFixUserIdList(c *gin.Context) {
 		return
 	}
 	var fixids []string
-	if err := db.FeedMgr(db.GetConn()).Where("type = ? AND uid = ?", 1, sid).Select("id").Offset((page - 1) * 10).Limit(10).Find(&fixids).Error; err != nil {
+	if err := db.FeedMgr(db.GetConn()).Where("type = ? AND uid = ?", 1, sid).Select("id").Offset((page - 1) * 5).Limit(5).Find(&fixids).Error; err != nil {
 		c.JSON(400, gin.H{
 			"code": 400,
 			"msg":  "查询失败",

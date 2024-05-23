@@ -121,6 +121,7 @@ func Start() {
 	router.POST("api/account/delete", handleAccountDelete)
 	router.POST("api/account/getbykey", handleAccountIdsGetByKey)
 	router.GET("api/account/admin/overview", handleAccountOverview)
+	router.POST("api/account/add",handleAccountAdd)
 
 	router.GET("api/account/3rd/count", handleAccount3rdCount)
 	router.GET("api/account/3rd/id/list", handleAccount3rdIdList)
