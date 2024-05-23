@@ -220,20 +220,26 @@ func handleAccountUpdateInfo(c *gin.Context) {
 		return
 	}
 	avatarURL := ""
-	if req.Avator != nil {
+	if len(req.Avator) > 0 {
 		avatarURL = req.Avator[0].Response.URL
-	}
-	if err := db.GetConn().Model(&db.User{}).Where("uid = ?", req.UID).UpdateColumns(
-		map[string]interface{}{
-			"name":     req.Name,
-			"sex":      req.Sex,
-			"tel":      req.Tel,
-			"idcard":   req.Idcard,
-			"location": req.Location,
-			"avator":   avatarURL,
-		},
-	).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "error": err.Error()})
+		if avatarURL == "" {
+			avatarURL = req.Avator[0].URL
+		}
+		if err := db.GetConn().Model(&db.User{}).Where("uid = ?", req.UID).UpdateColumns(
+			map[string]interface{}{
+				"name":     req.Name,
+				"sex":      req.Sex,
+				"tel":      req.Tel,
+				"idcard":   req.Idcard,
+				"location": req.Location,
+				"avator":   avatarURL,
+			},
+		).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"code": 400, "error": err.Error()})
+			return
+		}
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "error": "数据上传格式错误"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"code": 200, "msg": "更新成功"})
@@ -285,5 +291,20 @@ func handleAccountIdsGetByKey(c *gin.Context) {
 		"code": 200,
 		"msg":  "获取成功",
 		"data": ids,
+	})
+}
+
+func handleAccountOverview(c *gin.Context) {
+	type Res struct {
+		HasRegisterd   int64 `json:"hasRegisterd"`
+		OtherUserCount int64 `json:"otherUserCount"`
+	}
+	var res Res
+	db.GetConn().Table("User").Count(&res.HasRegisterd)
+	db.GetConn().Table("OtherUser").Count(&res.OtherUserCount)
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "请求成功",
+		"data": res,
 	})
 }

@@ -517,3 +517,22 @@ func handleAncouceAll(c *gin.Context) {
 		"data":    res,
 	})
 }
+
+func handleArticleOverview(c *gin.Context) {
+	type Res struct {
+		ArticleCount      int64 `json:"articleCount"`
+		ArticleHasPublish int64 `json:"articlePublish"`
+		AnounceCount      int64 `json:"anounceCount"`
+		AnounceHasPublish int64 `json:"anouncePublish"`
+	}
+	var res Res
+	db.GetConn().Table("Article").Count(&res.ArticleCount)
+	db.GetConn().Table("Article").Where("status = ?", 1).Count(&res.ArticleHasPublish)
+	db.GetConn().Table("Anounce").Count(&res.AnounceCount)
+	db.GetConn().Table("Anounce").Where("status = ?", 1).Count(&res.AnounceHasPublish)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "获取文章概览成功",
+		"data":    res,
+	})
+}

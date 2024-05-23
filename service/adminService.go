@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"stvsljl.com/CSMS/db"
@@ -97,5 +98,66 @@ func handleAdminPasswd(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "修改成功",
+	})
+}
+
+func handleLastLoginTime(c *gin.Context) {
+	id := c.Query("id")
+	if id == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "请求参数错误",
+		})
+		return
+	}
+	if err := db.GetConn().Table("Admin").Where("id = ?", id).Update("lastlogin", time.Now()).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 400,
+			"msg":  "修改失败",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "修改成功",
+	})
+}
+
+func handleUserCount(c *gin.Context) {
+	var count int64
+	if err := db.GetConn().Table("Admin").Count(&count).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 400,
+			"msg":  "请求参数错误",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "请求成功",
+		"data": count,
+	})
+}
+
+func handleUserDetails(c *gin.Context) {
+	id := c.Query("id")
+	if id == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 400,
+			"msg":  "请求参数错误",
+		})
+		return
+	}
+	admin := db.Admin{}
+	if err := db.GetConn().Table("Admin").Where("id = ?", id).First(&admin).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code": 400,
+			"msg":  "请求数据库失败",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "请求成功",
+		"data": admin,
 	})
 }

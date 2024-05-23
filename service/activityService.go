@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -240,8 +241,22 @@ func handleActivityUpdate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if len(req.Data.StartTime) == 20 {
+		req.Data.StartDate = req.Data.StartDate[0:10]
+	}
+	if len(req.Data.StopTime) == 20 {
+		req.Data.StopDate = req.Data.StopDate[0:10]
+	}
+	if len(req.Data.StartTime) == 20 {
+		req.Data.StartTime = req.Data.StartTime[11:19]
+	}
+	if len(req.Data.StopTime) == 20 {
+		req.Data.StopTime = req.Data.StopTime[11:19]
+	}
 	starttime, _ := time.Parse("2006-01-02 15:04:05", req.Data.StartDate+" "+req.Data.StartTime)
 	endtime, _ := time.Parse("2006-01-02 15:04:05", req.Data.StopDate+" "+req.Data.StopTime)
+	fmt.Println(req.Data.StartDate, req.Data.StartTime)
+
 	active := db.Active{
 		Acid:      req.Acid,
 		Name:      req.Data.Name,
@@ -414,5 +429,22 @@ func handleActivityUserIdList(c *gin.Context) {
 		"code":    200,
 		"message": "获取成功",
 		"data":    ids,
+	})
+}
+
+func handleActivityOverview(c *gin.Context) {
+	type Res struct {
+		Count     int64 `json:"count"`
+		HasEnd    int64 `json:"hasEnd"`
+		Inprocess int64 `json:"inprocess"`
+	}
+	var res Res
+	db.GetConn().Table("Active").Count(&res.Count)
+	db.GetConn().Table("Active").Where("endTime < ?", time.Now()).Count(&res.HasEnd)
+	db.GetConn().Table("Active").Where("endTime > ?", time.Now()).Count(&res.Inprocess)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "查询成功",
+		"data":    res,
 	})
 }

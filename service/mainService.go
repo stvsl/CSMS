@@ -38,6 +38,9 @@ func Start() {
 	router.POST("api/admin/passwd", handleAdminPasswd)
 	router.POST("api/user/login", handleUserLogin)
 	router.POST("api/user/register", handleUserRegister)
+	router.GET("api/user/fetchlastlogintime", handleLastLoginTime)
+	router.GET("api/user/count", handleUserCount)
+	router.GET("api/user/details", handleUserDetails)
 
 	router.POST("api/service/image/upload", handleImageUpload)
 	router.POST("api/service/content/upload", handleCOSContentUpload)
@@ -52,6 +55,7 @@ func Start() {
 	router.GET("api/article/id/recent", handleArticleRecent)
 	router.GET("api/article/id/all", handleArticleAll)
 	router.GET("api/article/id/count", handleArticleIdCount)
+	router.GET("api/articleanounce/admin/overview", handleArticleOverview)
 
 	router.GET("api/anounce/count", handleAncouceCount)
 	router.POST("api/anounce/upload", handleAnounceUpload)
@@ -79,6 +83,7 @@ func Start() {
 	router.POST("api/activity/exit", handleActivityExit)
 	router.GET("api/activity/user/count", handleActivityUserCount)
 	router.GET("api/activity/user/id/list", handleActivityUserIdList)
+	router.GET("api/activity/admin/overview", handleActivityOverview)
 
 	router.POST("api/feed/upload", handleFeedUpload)
 	router.GET("api/feed/count", handleFeedCount)
@@ -115,6 +120,7 @@ func Start() {
 	router.POST("api/account/update/info", handleAccountUpdateInfo)
 	router.POST("api/account/delete", handleAccountDelete)
 	router.POST("api/account/getbykey", handleAccountIdsGetByKey)
+	router.GET("api/account/admin/overview", handleAccountOverview)
 
 	router.GET("api/account/3rd/count", handleAccount3rdCount)
 	router.GET("api/account/3rd/id/list", handleAccount3rdIdList)
