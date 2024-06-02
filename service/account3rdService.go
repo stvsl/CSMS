@@ -192,3 +192,51 @@ func handleAccountFetchList(c *gin.Context) {
 		"data": ids,
 	})
 }
+
+func handle3RdWorkCount(c *gin.Context) {
+	id := c.Query("id")
+	var count int64
+	if id == "" {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code": 500,
+			"msg":  "请求参数无效",
+		})
+	}
+	if err := db.GetConn().Table("Feed").Where("oid = ?", id).Count(&count).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code": 500,
+			"msg":  "请求参数无效",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "请求成功",
+		"data": count,
+	})
+}
+
+func handle3RdIdList(c *gin.Context) {
+	id := c.Query("id")
+	spage := c.Query("page")
+	if id == "" || spage == "" {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code": 500,
+			"msg":  "请求参数无效",
+		})
+		return
+	}
+	page, _ := strconv.Atoi(spage)
+	var ids []string
+	if err := db.GetConn().Table("Feed").Where("oid = ?", id).Limit(10).Offset((page-1)*10).Pluck("id", &ids).Error; err != nil {
+		c.JSON(http.StatusExpectationFailed, gin.H{
+			"code": 500,
+			"msg":  "请求参数无效",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "请求成功",
+		"data": ids,
+	})
+}

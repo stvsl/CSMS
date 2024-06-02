@@ -32,8 +32,9 @@ func handleActivityUpload(c *gin.Context) {
 		})
 		return
 	}
-	starttime, _ := time.Parse("2006-01-02 15:04:05", req.Data.StartDate+" "+req.Data.StartTime)
-	endtime, _ := time.Parse("2006-01-02 15:04:05", req.Data.StopDate+" "+req.Data.StopTime)
+	var LOC, _ = time.LoadLocation("Asia/Shanghai")
+	starttime, _ := time.ParseInLocation("2006-01-02 15:04:05", req.Data.StartDate+" "+req.Data.StartTime, LOC)
+	endtime, _ := time.ParseInLocation("2006-01-02 15:04:05", req.Data.StopDate+" "+req.Data.StopTime, LOC)
 	activity := db.Active{
 		Name:      req.Data.Name,
 		Starttime: starttime,
@@ -241,20 +242,21 @@ func handleActivityUpdate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if len(req.Data.StartTime) == 20 {
+	if len(req.Data.StartDate) > 10 {
 		req.Data.StartDate = req.Data.StartDate[0:10]
 	}
-	if len(req.Data.StopTime) == 20 {
+	if len(req.Data.StopDate) > 10 {
 		req.Data.StopDate = req.Data.StopDate[0:10]
 	}
-	if len(req.Data.StartTime) == 20 {
+	if len(req.Data.StartTime) > 8 {
 		req.Data.StartTime = req.Data.StartTime[11:19]
 	}
-	if len(req.Data.StopTime) == 20 {
+	if len(req.Data.StopTime) > 8 {
 		req.Data.StopTime = req.Data.StopTime[11:19]
 	}
-	starttime, _ := time.Parse("2006-01-02 15:04:05", req.Data.StartDate+" "+req.Data.StartTime)
-	endtime, _ := time.Parse("2006-01-02 15:04:05", req.Data.StopDate+" "+req.Data.StopTime)
+	var LOC, _ = time.LoadLocation("Asia/Shanghai")
+	starttime, _ := time.ParseInLocation("2006-01-02 15:04:05", req.Data.StartDate+" "+req.Data.StartTime, LOC)
+	endtime, _ := time.ParseInLocation("2006-01-02 15:04:05", req.Data.StopDate+" "+req.Data.StopTime, LOC)
 	fmt.Println(req.Data.StartDate, req.Data.StartTime)
 
 	active := db.Active{

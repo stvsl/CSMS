@@ -510,7 +510,53 @@ func handleFixDelete(c *gin.Context) {
 }
 
 func handleFixUpdate(c *gin.Context) {
-
+	type Req struct {
+		ID         int       `json:"ID"`
+		UID        uint32    `json:"UID"`
+		Type       uint32    `json:"Type"`
+		Name       string    `json:"Name"`
+		Feedtime   time.Time `json:"Feedtime"`
+		Detail     string    `json:"Detail"`
+		Process    uint32    `json:"Process"`
+		Status     int       `json:"Status"`
+		Oid        uint32    `json:"Oid"`
+		Processor  string    `json:"Processor"`
+		Updatetime time.Time `json:"Updatetime"`
+		Record     string    `json:"Record"`
+	}
+	var req Req
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"code": 400,
+			"msg":  "参数错误",
+		})
+		return
+	}
+	feed := db.Feed{
+		ID:         req.ID,
+		UID:        req.UID,
+		Type:       req.Type,
+		Name:       req.Name,
+		Feedtime:   req.Feedtime,
+		Detail:     req.Detail,
+		Process:    req.Process,
+		Status:     req.Status,
+		Oid:        req.Oid,
+		Processor:  req.Processor,
+		Updatetime: req.Updatetime,
+		Record:     req.Record,
+	}
+	if err := db.GetConn().Updates(feed).Error; err != nil {
+		c.JSON(400, gin.H{
+			"code": 400,
+			"msg":  "更新失败",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 200,
+		"data": "修改成功",
+	})
 }
 
 func handleFixStatus(c *gin.Context) {
