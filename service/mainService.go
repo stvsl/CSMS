@@ -134,6 +134,9 @@ func Start() {
 	router.GET("api/3rd/count", handle3RdWorkCount)
 	router.POST("api/3rd/id/list", handle3RdIdList)
 
+	router.GET("api/user/search",handleUserSearch)
+
+
 	// 打印总路由条数
 	utils.Log.Info("总路由条数：", len(router.Routes()))
 	router.Run(":6521")

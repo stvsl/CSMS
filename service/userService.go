@@ -340,3 +340,44 @@ func handleAccountAdd(c *gin.Context) {
 		"msg":  "添加成功",
 	})
 }
+func handleUserSearch(c *gin.Context) {
+
+	key := c.Query("key")
+	if key == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "msg": "参数错误"})
+		return
+	}
+	var arctileids []int
+	if err := db.GetConn().Table("Article").Select("aid").Where("title LIKE ? OR introduction LIKE ? OR text LIKE ?", "%"+key+"%", "%"+key+"%", "%"+key+"%").Pluck("aid", &arctileids).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 400,
+			"msg":  "搜索失败",
+		})
+		return
+	}
+	var anounceids []int
+	if err := db.GetConn().Table("Anounce").Select("aid").Where("title LIKE ? OR introduction LIKE ? OR text LIKE ?", "%"+key+"%", "%"+key+"%", "%"+key+"%").Pluck("aid", &anounceids).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 400,
+			"msg":  "搜索失败",
+		})
+		return
+	}
+	var activeids []int
+	if err := db.GetConn().Table("Active").Select("acid").Where("name LIKE ? OR text LIKE ?", "%"+key+"%", "%"+key+"%").Pluck("acid", &activeids).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 400,
+			"msg":  "搜索失败",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "搜索成功",
+		"data": gin.H{
+			"article": arctileids,
+			"anounce": anounceids,
+			"active":  activeids,
+		},
+	})
+}
